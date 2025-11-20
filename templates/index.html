@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Mold Prevention Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #1a2c5a;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            width: 280px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        .card-header {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .sensor-data {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .data-point {
+            font-size: 1.1em;
+        }
+        .data-point span {
+            display: block;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .risk-meter {
+            width: 100%;
+            height: 30px;
+            background-color: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid #ccc;
+        }
+        .risk-bar {
+            height: 100%;
+            width: 0%; /* Default width */
+            background-color: #28a745; /* Green for low risk */
+            transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌿 Smart Humidity & Mold Prevention Dashboard</h1>
+    <div id="dashboard-container" class="container">
+        <!-- Cards will be dynamically generated here -->
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const socket = io();
+            const container = document.getElementById('dashboard-container');
+            const rooms = ['bathroom', 'basement', 'kitchen'];
+
+            // Initialize the dashboard with placeholder cards
+            function createInitialCards() {
+                rooms.forEach(room => {
+                    const cardHTML = `
+                        <div class="card" id="card-${room}">
+                            <div class="card-header">${room.charAt(0).toUpperCase() + room.slice(1)}</div>
+                            <div class="sensor-data">
+                                <div class="data-point">Temp<span id="temp-${room}">-- °C</span></div>
+                                <div class="data-point">Humidity<span id="humid-${room}">-- %</span></div>
+                            </div>
+                            <p>Mold Risk</p>
+                            <div class="risk-meter">
+                                <div class="risk-bar" id="risk-${room}" style="width: 0%;">0%</div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += cardHTML;
+                });
+            }
+
+            createInitialCards();
+
+            socket.on('connect', () => {
+                console.log('Connected to server!');
+            });
+
+            socket.on('update_data', (data) => {
+                console.log('Received data update:', data);
+                Object.keys(data).forEach(room => {
+                    const roomData = data[room];
+
+                    // Update temperature and humidity
+                    document.getElementById(`temp-${room}`).textContent = `${roomData.temperature.toFixed(1)} °C`;
+                    document.getElementById(`humid-${room}`).textContent = `${roomData.humidity.toFixed(1)} %`;
+
+                    // Update risk bar
+                    const riskBar = document.getElementById(`risk-${room}`);
+                    const riskScore = roomData.risk_score;
+                    riskBar.style.width = `${riskScore}%`;
+                    riskBar.textContent = `${riskScore}%`;
+
+                    // Change color based on risk
+                    if (riskScore > 80) {
+                        riskBar.style.backgroundColor = '#dc3545'; // Red
+                    } else if (riskScore > 50) {
+                        riskBar.style.backgroundColor = '#ffc107'; // Yellow
+                    } else {
+                        riskBar.style.backgroundColor = '#28a745'; // Green
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
