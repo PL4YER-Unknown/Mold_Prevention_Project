@@ -1,6 +1,4 @@
-# **CSE-515: Smart Humidity & Mold Prevention System**
-
-**Group 15:** Archit Jain (21218004), Lucky Singad (21218010), Ankit (21174006)
+# **Smart Humidity & Mold Prevention System**
 
 ## **Project Overview**
 
