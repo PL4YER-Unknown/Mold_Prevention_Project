@@ -51,10 +51,4 @@ python src/dashboard\_app.py
 
 Now, open a web browser and navigate to **http://127.0.0.1:5000** to see the live dashboard.
 
-## **Files in this Submission**
 
-* /src: Contains all the Python source code for the simulation.  
-* /templates: Contains the HTML for the web dashboard.  
-* /docs: Contains our original project reports (Progress Report 1 and Assignment 1).  
-* README.md: This file.  
-* requirements.txt: The list of Python dependencies.
